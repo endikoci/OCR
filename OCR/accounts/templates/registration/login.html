@@ -1,0 +1,58 @@
+<!-- templates/registration/login.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <!-- Add Tailwind CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 h-screen flex flex-col justify-center items-center">
+    <div class="bg-white p-8 rounded-lg shadow-md max-w-md w-full">
+        <h2 class="text-2xl mb-4">Login</h2>
+        
+        <!-- Display error messages -->
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert {{ message.tags }}" role="alert" style="background-color: rgba(255, 0, 0, 0.5); color: white; padding: 10px; border-radius: 5px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); border: 1px solid rgba(255, 0, 0, 0.8);">
+            {{ message.message }}
+        </div>
+        
+        {% endfor %}
+    {% endif %}
+    
+        
+        <form method="post" class="space-y-4">
+            {% csrf_token %}
+            <div>
+                <label for="username" class="block text-sm font-medium text-gray-700">Username:</label>
+                <input type="text" id="username" name="username" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+            </div>
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700">Password:</label>
+                <input type="password" id="password" name="password" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+            </div>
+            <button type="submit" class="w-full bg-indigo-500 text-white p-2 rounded-md hover:bg-indigo-600 transition duration-300">Login</button>
+        </form>
+        <p class="mt-4 text-sm">Don't have an account? <a href="{% url 'register' %}" class="text-indigo-600">Register</a></p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            // Check if there's an error message container
+            const errorMessageContainer = document.querySelector('.bg-red-100');
+            if (errorMessageContainer) {
+                // Hide the error message container after a short delay
+                setTimeout(() => {
+                    errorMessageContainer.style.display = 'none';
+                }, 5000); // Adjust the timeout as needed
+    
+                // Alternatively, you can immediately hide the message on page load
+                errorMessageContainer.style.display = 'none';
+            }
+        });
+    </script>
+    
+</body>
+</html>

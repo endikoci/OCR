@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <!-- Add Tailwind CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        /* Hide the message element by default */
+        #upload-success-message {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 h-screen flex flex-col justify-center items-center">
+    <div class="bg-white p-8 rounded-lg shadow-md max-w-md w-full">
+        <h2 class="text-2xl mb-4">Upload File</h2>
+        <form id="upload-form" method="post" enctype="multipart/form-data" action="{% url 'file_upload' %}" class="space-y-4">
+            {% csrf_token %}
+            <div>
+                <label for="file" class="block text-sm font-medium text-gray-700">Select File:</label>
+                <input type="file" id="file" name="file" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+            </div>
+            <button type="button" id="upload-button" class="w-full bg-indigo-500 text-white p-2 rounded-md hover:bg-indigo-600 transition duration-300">Upload</button>
+        </form>
+        <!-- Message to display on successful upload -->
+        <div id="upload-success-message" class="text-green-600 mt-4">The file was uploaded successfully and will be sent as a PDF to {{ request.user.email }}.</div>
+    </div>
+
+    <!-- Logout button -->
+    <form action="{% url 'logout' %}" method="post" class="absolute top-0 right-0 mt-8 mr-8">
+        {% csrf_token %}
+        <button type="submit" class="bg-red-500 text-white p-2 rounded-md hover:bg-red-600 transition duration-300">Logout</button>
+    </form>
+
+    <!-- Display logged-in user's name -->
+    <div class="absolute top-0 left-0 mt-8 ml-8 bg-blue-200 rounded-md border border-blue-300 p-2">
+        <p class="text-black-600 font-semibold text-lg">{{ request.user.username }}</p>
+    </div>
+    <script>
+        // Function to show the success message
+        function showSuccessMessage() {
+            var successMessage = document.getElementById('upload-success-message');
+            successMessage.style.display = 'block';
+        }
+    
+        // Function to handle form submission
+        function handleFormSubmission() {
+            // Show success message
+            showSuccessMessage();
+
+            // Simulate form submission using AJAX
+            var formData = new FormData(document.getElementById('upload-form'));
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', document.getElementById('upload-form').action, true);
+            xhr.onload = function() {
+                // Handle response if needed
+            };
+            xhr.send(formData);
+        }
+
+        // Add event listener to the upload button to handle form submission
+        document.getElementById('upload-button').addEventListener('click', function(event) {
+            // Prevent the default form submission
+            event.preventDefault();
+            
+            // Call handleFormSubmission function
+            handleFormSubmission();
+        });
+    </script>
+</body>
+</html>
+
