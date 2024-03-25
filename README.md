@@ -1,2 +1,12 @@
 # OCR
  Optical Character Recognition converter
+
+#pip install these
+django
+redis
+celery
+pycairo
+python-doctr[tf] @ git+https://github.com/mindee/doctr.git
+reportlab>=3.6.2
+PyPDF2==1.26.0
+PyMuPDF
