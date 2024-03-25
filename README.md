@@ -1,7 +1,7 @@
 # OCR
  Optical Character Recognition converter
 
-#pip install these
+#pip install these///
 django
 redis
 celery
