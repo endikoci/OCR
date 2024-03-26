@@ -20,7 +20,8 @@ import fitz
 import time
 import shutil
 from celery import shared_task
-
+from django.core.mail import EmailMessage
+from django.conf import settings
 
 class HocrParser():
     def __init__(self):
@@ -146,7 +147,7 @@ class HocrParser():
         pdf.save()
 
 
-@shared_task()
+#@shared_task()
 def is_scanned_pdf(file_path):
     try:
         doc = fitz.open(file_path)
@@ -155,13 +156,14 @@ def is_scanned_pdf(file_path):
             text = page.get_text()
             if text.strip():
                 return False
+
         return True
     except Exception as e:
         print(f"Error processing {file_path}: {e}")
         return False
 
 
-@shared_task()
+#@shared_task()
 def process_scanned_pdf(file_path, output_path, model):
     docs = DocumentFile.from_pdf(file_path)
     result = model(docs)
@@ -187,7 +189,7 @@ def process_scanned_pdf(file_path, output_path, model):
                 time.sleep(1)
 
 
-@shared_task()
+#@shared_task()
 def run_ocr_on_file(file_path):
     model = ocr_predictor(det_arch='db_resnet50', reco_arch='crnn_vgg16_bn', pretrained=True)
     if file_path.lower().endswith('.pdf') and is_scanned_pdf(file_path):
@@ -196,3 +198,33 @@ def run_ocr_on_file(file_path):
         process_scanned_pdf(file_path, output_file, model)
     else:
         print(f"Skipping non-scanned PDF or non-PDF file: {os.path.basename(file_path)}")
+
+@shared_task
+def send_email_with_attachment(receiver_email, subject, body, attachment_path):
+    try:
+        # Create the EmailMessage instance
+        email = EmailMessage(
+            subject,
+            body,
+            settings.DEFAULT_FROM_EMAIL,  # Use Django's default sender email address
+            [receiver_email],  # Receiver's email address
+        )
+        email.attach_file(attachment_path)
+        email.send(fail_silently=False)  # Send email asynchronously
+    except Exception as e:
+        # Handle any errors that occur during email sending
+        print(f"An error occurred while sending email: {e}")
+
+
+
+
+
+@shared_task
+def process_uploaded_file(user_email, uploaded_file):
+    # Process the uploaded file (e.g., run OCR)
+    file_path = run_ocr_on_file(uploaded_file)
+
+    # Send email with attachment
+    send_email_with_attachment(user_email, 'OCR Document Processed',
+                               'Please find your OCR-processed document attached.',
+                               file_path)

@@ -5,10 +5,9 @@ from .forms import UploadFileForm
 from django.contrib.auth.decorators import login_required
 from django.core.mail import EmailMessage
 import os
-from .tasks import run_ocr_on_file  # Importing the specific function
+from .tasks import run_ocr_on_file , send_email_with_attachment
 
-
-@login_required 
+@login_required
 def file_upload(request):
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
@@ -21,21 +20,18 @@ def file_upload(request):
             # Run OCR on the uploaded file
             run_ocr_on_file(file_path)
 
-
             base, ext = os.path.splitext(filename)
             processed_filename = f"{base}_OCR{ext}"
             processed_file_path = file_location.path(processed_filename)
-            try: 
-                # Send email with attachment
-                send_email_with_attachment(
-                    request.user.email,  # Using the logged-in user's email
-                    'OCR Document Processed',
-                    'Please find your OCR-processed document attached.',
-                    processed_file_path
-                )
-            except: 
-                print("Oppsie! Email not configured")
-            return redirect('home/file_upload.html')
+
+            # Enqueue sending email task
+            send_email_with_attachment.delay(
+                request.user.email,  # Using the logged-in user's email
+                'OCR Document Processed',
+                'Please find your OCR-processed document attached.',
+                processed_file_path
+            )
+            return redirect('home:file_upload')  # Assuming 'home' is the namespace for your app
 
     else:
         form = UploadFileForm()
@@ -43,15 +39,16 @@ def file_upload(request):
 
 
 
-def send_email_with_attachment(receiver_email, subject, body, attachment_path):
-    email = EmailMessage(
-        subject,
-        body,
-        '',  # Your sender email address
-        '',
-    )
-    email.attach_file(attachment_path)
-    email.send()
+
+#def send_email_with_attachment(receiver_email, subject, body, attachment_path):
+ #   email = EmailMessage(
+    #    subject,
+     #   body,
+      #  'm.maksuti@balfin.al',  # Your sender email address
+       # 'request.user.email',
+    #)
+    #email.attach_file(attachment_path)
+    #email.send()
 
 
 

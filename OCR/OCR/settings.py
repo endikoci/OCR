@@ -13,6 +13,7 @@ import sys
 
 from pathlib import Path
 import os
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -128,12 +129,18 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, "folder")
 
 # celery
-CELERY_BROKER_URL = "redis://127.0.0.1:6379"  # redis
+CELERY_BROKER_URL = "redis://localhost:6379/0"  # redis
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Europe/Tirane'
-CELERY_RESULT_BACKEND = "redis://localhost:6379"
+CELERY_RESULT_BACKEND = "db+sqlite:///results.sqlite"
+CELERY_BEAT_SCHEDULE = {
+    'task-name': {
+        'task': 'OCR.tasks.file_upload',
+        'schedule': timedelta(seconds=60),
+    },
+}
 
 # email
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

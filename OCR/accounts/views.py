@@ -29,14 +29,14 @@ def register(request):
 
 def user_login(request):
     if request.method == 'POST':
-        username = request.POST.get('username')  # Use .get for safer retrieval
+        username = request.POST.get('username')
         password = request.POST.get('password')
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
             return redirect('home')
         else:
-            messages.error(request, 'Invalid email or password.')  # This adds the error message
+            messages.error(request, 'Invalid email or password.')
             return redirect('login')
     return render(request, 'registration/login.html')
 
