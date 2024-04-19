@@ -199,7 +199,7 @@ def run_ocr_on_file(file_path):
     else:
         print(f"Skipping non-scanned PDF or non-PDF file: {os.path.basename(file_path)}")
 
-@shared_task
+@shared_task(name="send_email_with_attachment")
 def send_email_with_attachment(receiver_email, subject, body, attachment_path):
     try:
         # Create the EmailMessage instance
@@ -219,11 +219,12 @@ def send_email_with_attachment(receiver_email, subject, body, attachment_path):
 
 
 
-@shared_task
+@shared_task(name="process_uploaded_file")
 def process_uploaded_file(user_email, uploaded_file):
     # Process the uploaded file (e.g., run OCR)
     file_path = run_ocr_on_file(uploaded_file)
-
+    print(user_email)
+    print(file_path)
     # Send email with attachment
     send_email_with_attachment(user_email, 'OCR Document Processed',
                                'Please find your OCR-processed document attached.',
